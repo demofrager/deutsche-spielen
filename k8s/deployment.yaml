@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: registry.plsdontspam.me/deutsche_spielen:latest
+        image: registry.plsdontspam.me/deutsche-spielen:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
