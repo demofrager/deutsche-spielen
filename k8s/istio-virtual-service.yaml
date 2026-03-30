@@ -5,12 +5,12 @@ metadata:
   namespace: deutsche-spielen
 spec:
   hosts:
-  - deutsche-spielen.local
+  - deutsche-spielen.plsdontspam.me
   gateways:
   - deutsche-spielen-gateway
   http:
   - route:
     - destination:
-        host: deutsche-spielen
+        host: deutsche-spielen.deutsche-spielen.svc.cluster.local
         port:
           number: 80

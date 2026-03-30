@@ -16,7 +16,7 @@ spec:
         app: deutsche-spielen
     spec:
       containers:
-      - name: web
+      - name: deutsche-spielen-container
         image: registry.plsdontspam.me/deutsche-spielen:latest
         imagePullPolicy: Always
         ports:
