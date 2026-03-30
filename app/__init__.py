@@ -1,0 +1,1 @@
+"""Deutsche Spielen application package."""

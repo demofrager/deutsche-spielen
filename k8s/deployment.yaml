@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deutsche-spielen
+  namespace: deutsche-spielen
+  labels:
+    app: deutsche-spielen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deutsche-spielen
+  template:
+    metadata:
+      labels:
+        app: deutsche-spielen
+    spec:
+      containers:
+      - name: web
+        image: registry.plsdontspam.me/deutsche_spielen:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi

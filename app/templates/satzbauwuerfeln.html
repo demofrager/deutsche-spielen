@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="panel">
+  <h2>Satzbauwuerfeln</h2>
+  <p class="game-intro">
+    Klick auf <strong>Würfeln</strong> um drei Würfel zu werfen. Jeder Würfel gibt dir ein Element für deinen Satz.
+    Der vierte Würfel zeigt dir, welchen Satztyp du bilden musst.
+  </p>
+
+  <button class="button roll-btn" id="rollBtn">&#9861; Würfeln</button>
+
+  <div class="dice-area" id="diceArea" aria-live="polite"></div>
+
+  <!-- Sentence type badge -->
+  <div class="sentence-type-area" id="sentenceTypeArea"></div>
+
+  <!-- Input area (shown after first roll) -->
+  <div class="input-area hidden" id="inputArea">
+    <label for="studentSentence" class="input-label">Dein Satz:</label>
+    <textarea
+      id="studentSentence"
+      class="sentence-input"
+      rows="3"
+      placeholder="Schreib hier deinen Satz..."
+      aria-label="Dein Satz"
+    ></textarea>
+    <button class="button validate-btn" id="validateBtn">&#10003; Überprüfen</button>
+    <div class="result-box hidden" id="resultBox" aria-live="polite"></div>
+  </div>
+</section>
+
+<script>
+(function () {
+  const rollBtn = document.getElementById('rollBtn');
+  const diceArea = document.getElementById('diceArea');
+  const sentenceTypeArea = document.getElementById('sentenceTypeArea');
+  const inputArea = document.getElementById('inputArea');
+  const validateBtn = document.getElementById('validateBtn');
+  const resultBox = document.getElementById('resultBox');
+  const sentenceInput = document.getElementById('studentSentence');
+
+  // Stores current roll context for validation
+  let currentSuggestions = [];
+  let currentSentenceTypeLetter = '';
+
+  rollBtn.addEventListener('click', async () => {
+    rollBtn.disabled = true;
+    rollBtn.textContent = '...';
+    diceArea.innerHTML = '';
+    sentenceTypeArea.innerHTML = '';
+    resultBox.classList.add('hidden');
+    resultBox.innerHTML = '';
+    sentenceInput.value = '';
+
+    try {
+      const res = await fetch('/api/games/satzbauwuerfeln/roll', { method: 'POST' });
+      if (!res.ok) throw new Error('Server error ' + res.status);
+      const data = await res.json();
+      currentSuggestions = data.dice.map(d => d.suggestion);
+      currentSentenceTypeLetter = data.sentence_type.letter;
+      renderDice(data.dice);
+      renderSentenceType(data.sentence_type);
+      inputArea.classList.remove('hidden');
+    } catch (err) {
+      diceArea.innerHTML = '<p class="error-msg">Fehler beim Würfeln. Bitte nochmal versuchen.</p>';
+    } finally {
+      rollBtn.disabled = false;
+      rollBtn.innerHTML = '&#9861; Würfeln';
+    }
+  });
+
+  validateBtn.addEventListener('click', async () => {
+    if (!currentSentenceTypeLetter) return;
+    validateBtn.disabled = true;
+    resultBox.classList.add('hidden');
+
+    try {
+      const res = await fetch('/api/games/satzbauwuerfeln/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sentence: sentenceInput.value,
+          suggestions: currentSuggestions,
+          sentence_type_letter: currentSentenceTypeLetter,
+        }),
+      });
+      if (!res.ok) throw new Error('Server error ' + res.status);
+      const data = await res.json();
+      renderResult(data);
+    } catch (err) {
+      resultBox.className = 'result-box result-error';
+      resultBox.textContent = 'Fehler bei der Überprüfung. Bitte nochmal versuchen.';
+    } finally {
+      validateBtn.disabled = false;
+    }
+  });
+
+  function renderDice(dice) {
+    const grid = document.createElement('div');
+    grid.className = 'dice-grid';
+    dice.forEach(die => {
+      const card = document.createElement('div');
+      card.className = 'die-card';
+      card.innerHTML = `
+        <span class="die-number">${die.value}</span>
+        <span class="die-label">${die.label}</span>
+        <span class="die-question">${die.question}</span>
+        <span class="die-suggestion">${die.suggestion}</span>
+      `;
+      grid.appendChild(card);
+    });
+    diceArea.appendChild(grid);
+  }
+
+  function renderSentenceType(st) {
+    sentenceTypeArea.innerHTML = `
+      <div class="sentence-type-badge">
+        <span class="st-letter">${st.letter}</span>
+        <span class="st-label">${st.label}</span>
+      </div>
+    `;
+  }
+
+  function renderResult(data) {
+    resultBox.className = 'result-box ' + (data.is_valid ? 'result-pass' : 'result-fail');
+    const checksList = data.checks_passed.map(c =>
+      `<li class="check-pass">&#10003; ${formatCheck(c)}</li>`
+    ).join('');
+    const failList = data.checks_failed.map(c =>
+      `<li class="check-fail">&#10007; ${formatCheck(c)}</li>`
+    ).join('');
+    resultBox.innerHTML = `
+      <p class="result-message">${data.message}</p>
+      <ul class="check-list">${checksList}${failList}</ul>
+    `;
+    resultBox.classList.remove('hidden');
+  }
+
+  function formatCheck(key) {
+    const labels = {
+      non_empty: 'Satz nicht leer',
+      punctuation: 'Satzzeichen am Ende',
+      contains_suggestions: 'Gewürfelte Wörter verwendet',
+      sentence_type_hint: 'Satztyp beachtet',
+    };
+    return labels[key] || key;
+  }
+})();
+</script>
+{% endblock %}

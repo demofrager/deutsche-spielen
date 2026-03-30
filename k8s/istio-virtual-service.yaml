@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: deutsche-spielen
+  namespace: deutsche-spielen
+spec:
+  hosts:
+  - deutsche-spielen.local
+  gateways:
+  - deutsche-spielen-gateway
+  http:
+  - route:
+    - destination:
+        host: deutsche-spielen
+        port:
+          number: 80

@@ -1,0 +1,12 @@
+__pycache__/
+.pytest_cache/
+*.pyc
+*.pyo
+*.pyd
+*.log
+.venv/
+.venv-deutsche/
+.git/
+.gitignore
+tests/
+TODO.md
