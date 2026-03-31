@@ -137,8 +137,11 @@ def validate_sentence(
     else:
         checks_failed.append("word_order_hint")
 
-    # 6. Grammar checks for hints (LanguageTool)
-    grammar_issues = check_grammar(stripped)
+    # 6. Grammar checks for hints (LanguageTool) — skip if blocking failures already found
+    if checks_failed:
+        grammar_issues = []
+    else:
+        grammar_issues = check_grammar(stripped)
     grammar_errors = [issue.message for issue in grammar_issues]
     grammar_replacements = [issue.replacements for issue in grammar_issues]
     if grammar_errors:
