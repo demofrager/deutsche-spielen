@@ -5,6 +5,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, field_validator
 
+from app.domain.game_registry import list_games
 from app.domain.sentence_validation import validate_sentence
 from app.services.satzbauwuerfeln_service import perform_roll
 
@@ -61,7 +62,10 @@ def satzbauwuerfeln(request: Request) -> HTMLResponse:
     return templates.TemplateResponse(
         request=request,
         name="satzbauwuerfeln.html",
-        context={"page_title": "Satzbauwuerfeln"},
+        context={
+            "page_title": "Satzbauwuerfeln",
+            "games": list_games(),
+        },
     )
 
 

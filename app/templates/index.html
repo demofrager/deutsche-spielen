@@ -5,14 +5,13 @@
   <h2>Choose a game</h2>
   <p>Pick a game below to start practicing German.</p>
   <div class="game-grid">
+    {% for game in games %}
     <article class="game-card">
-      <h3>Satzbauwuerfeln</h3>
-      <p>
-        Roll dice for sentence elements and sentence type, then build your own
-        German sentence.
-      </p>
-      <a class="button" href="/games/satzbauwuerfeln">Open game</a>
+      <h3>{{ game.title }}</h3>
+      <p>{{ game.description }}</p>
+      <a class="button" href="{{ game.path }}">Open game</a>
     </article>
+    {% endfor %}
   </div>
 </section>
 {% endblock %}

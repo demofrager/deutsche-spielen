@@ -100,7 +100,7 @@
 - [x] Phase 1 complete (Phase 2 LanguageTool integration added as Milestone 5).
 
 ## 8) Phase 2: LanguageTool Grammar Integration
-- [x] Create local development startup script (`scripts/start_languagetool_local.sh`):
+- [x] LanguageTool startup inlined into `scripts/run_local_toolbox.sh` (single distrobox, no separate script):
   - Start LanguageTool HTTP server on port 8081 inside the same distrobox
   - Verify connectivity before returning
 - [x] Add grammar checking service (`app/services/grammar_service.py`):
@@ -126,6 +126,12 @@
   - Mock LanguageTool responses
   - Test graceful fallback when service is unavailable
   - Test grammar error integration into validation output
+- [x] Add lightweight German word-order / V2 heuristic (`_word_order_heuristic` in `sentence_validation.py`):
+  - Hauptsatz (A/D/E/F): finite verb must appear at token index ≤ 3
+  - Fragesatz (C): finite verb must appear at token index ≤ 2
+  - Nebensatz (B): finite verb must appear near the end (index ≥ len-2) when a subordinating conjunction is present
+  - `word_order_hint` result surfaced in frontend with label "Satzstellung (Verbposition)"
+- [x] Skip LanguageTool query when blocking failures already found (performance: avoid unnecessary HTTP call)
 
 ## 9) Data Design
 - [x] Create static vocab configuration file (JSON or Python dict) for category suggestions.
@@ -138,6 +144,8 @@
   - category mapping and suggestion retrieval
   - sentence-type mapping A-F
   - basic validation heuristics
+  - word order heuristic (V2, Nebensatz, Fragesatz — pass and fail cases per type)
+  - LanguageTool early-exit (grammar check skipped when blocking failures present)
 - [x] API tests:
   - roll endpoint response schema
   - validate endpoint response schema
@@ -149,13 +157,13 @@
 - [x] Milestone 2: Build dice domain logic + roll endpoint.
 - [x] Milestone 3: Build Satzbauwuerfeln page and hook roll action.
 - [x] Milestone 4: Add sentence input + validation endpoint (basic heuristics).
-- [x] **Milestone 5: Phase 2 LanguageTool grammar integration** (FUNCTIONAL REQUIREMENT):
+- [x] Milestone 5: Phase 2 LanguageTool grammar integration (advanced heuristics):
   - Local dev startup script for distrobox
   - Grammar service wrapper + k8s deployment
   - Validation pipeline integration
   - Tests with graceful fallback
-- [ ] Milestone 6: Add tests and stabilize UX copy.
-- [ ] Milestone 7: Prepare extension points for future games.
+- [x] Milestone 6: Add tests and stabilize UX copy.
+- [x] Milestone 7: Prepare extension points for future games.
 
 ## 12) Non-Functional Requirements
 - [ ] Keep code modular and documented for easy maintenance.
@@ -167,7 +175,5 @@
 - [ ] Document k8s deployment: LanguageTool as separate service.
 
 ## 13) Future Enhancements (Out of MVP)
-- [ ] Teacher dashboard to manage vocabulary sets.
-- [ ] Student accounts and progress tracking.
 - [ ] Grammar correction with NLP/LLM assistance.
 - [ ] Additional German-learning games under same menu.

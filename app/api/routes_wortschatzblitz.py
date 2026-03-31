@@ -6,18 +6,18 @@ from fastapi.templating import Jinja2Templates
 
 from app.domain.game_registry import list_games
 
-router = APIRouter(tags=["games"])
+router = APIRouter(tags=["wortschatzblitz"])
 BASE_DIR = Path(__file__).resolve().parent.parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 
-@router.get("/games", response_class=HTMLResponse)
-def games(request: Request) -> HTMLResponse:
+@router.get("/games/wortschatzblitz", response_class=HTMLResponse)
+def wortschatzblitz(request: Request) -> HTMLResponse:
     return templates.TemplateResponse(
         request=request,
-        name="games.html",
+        name="wortschatzblitz.html",
         context={
-            "page_title": "Games",
+            "page_title": "Wortschatzblitz (Stub)",
             "games": list_games(),
         },
     )

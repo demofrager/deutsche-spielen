@@ -4,9 +4,9 @@ import logging
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
+from app.api.game_router_registry import include_game_routers
 from app.api.routes_games import router as games_router
 from app.api.routes_menu import router as menu_router
-from app.api.routes_satzbauwuerfeln import router as satzbauwuerfeln_router
 from app.services.grammar_service import get_languagetool_url, is_languagetool_available
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -20,7 +20,7 @@ def create_app() -> FastAPI:
 
     app.include_router(menu_router)
     app.include_router(games_router)
-    app.include_router(satzbauwuerfeln_router)
+    include_game_routers(app)
 
     @app.on_event("startup")
     def check_grammar_service() -> None:
