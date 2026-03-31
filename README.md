@@ -1,52 +1,60 @@
 # Deutsche Spielen
 
-Milestone 1 scaffold for a German-learning games webapp.
+German-learning web app built with FastAPI and Jinja templates.
 
-## Features in Milestone 1
-- FastAPI app bootstrap
-- Page routes:
-  - `/`
-  - `/games`
-  - `/games/satzbauwuerfeln`
-- Shared base template with menu navigation
-- Basic styling and project structure for future milestones
+Current playable game:
+- Satzbauwuerfeln
 
-## Run locally
-1. Create and activate a virtual environment.
-2. Install dependencies:
-   - `pip install -r requirements.txt`
-3. Start server:
-   - `uvicorn app.main:app --reload`
-4. Open browser:
-   - `http://127.0.0.1:8000`
+## Key Routes
+- `/` home page
+- `/games` game list
+- `/games/satzbauwuerfeln` game UI
+- `/api/games/satzbauwuerfeln/roll` roll endpoint
+- `/api/games/satzbauwuerfeln/validate` validation endpoint
 
-## Run tests
-- `pytest -q`
+## Local Development (single distrobox workflow)
 
-## Production Deployment
+This project is set up to run inside one distrobox named `deutsche-spielen-toolbox`.
 
-The project includes Docker and Kubernetes manifests under `k8s/`.
+1. Bootstrap toolbox and dependencies:
+   - `./run.sh setup`
+2. Run app locally (starts LanguageTool in the same toolbox by default):
+   - `./run.sh run_local`
+3. Open app:
+   - `http://127.0.0.1:8001`
 
-### Build and push image
-- `./run.sh build`
-- `./run.sh push`
+### Optional LanguageTool behavior
+- Grammar checks are enabled only when `LANGUAGETOOL_URL` is set.
+- Local `run_local` exports `LANGUAGETOOL_URL=http://127.0.0.1:8081` after starting LanguageTool.
+- If LanguageTool is unavailable, validation gracefully falls back to non-grammar checks.
+- Validation also skips LanguageTool calls when blocking checks already failed (performance optimization).
 
-By default this uses image `registry.plsdontspam.me/deutsche_spielen:latest`.
+### Run tests
+- `./run.sh test_local`
 
-### Apply manifests
+## Dependencies
+
+- Runtime dependencies: `requirements.txt`
+- Development/test dependencies: `requirements-dev.txt`
+
+## Kubernetes Deployment
+
+Kubernetes manifests are in `k8s/`.
+
+Apply all resources:
 - `./run.sh apply`
 
-This applies:
-- Namespace: `web`
-- Deployment: `deutsche-spielen`
-- Service: `deutsche-spielen` (ClusterIP on port 80 -> container 8000)
-- Istio Gateway + VirtualService for host `deutsche-spielen.local`
+Delete all resources:
+- `./run.sh delete`
 
-### Rollout restart
+Restart app rollout:
 - `./run.sh rollout`
 
-### Full deploy flow
+Full deploy flow:
 - `./run.sh all`
 
-### Delete manifests
-- `./run.sh delete`
+### Deployment architecture
+- `k8s/deployment.yaml`: Deutsche Spielen app deployment
+- `k8s/languagetool-deployment.yaml`: separate LanguageTool deployment + service
+- App connects to LanguageTool via:
+  - `LANGUAGETOOL_URL=http://languagetool.deutsche-spielen.svc.cluster.local:8010`

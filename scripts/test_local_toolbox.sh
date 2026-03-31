@@ -22,8 +22,8 @@ distrobox enter "$BOX_NAME" -- sh -lc "
   cd ${PROJECT_DIR}
 
   if ! ${VENV_PYTHON} -c 'import pytest' >/dev/null 2>&1; then
-    echo 'Dependencies missing, installing...'
-    ${VENV_PYTHON} -m pip install -r requirements.txt
+    echo 'Test dependencies missing, installing...'
+    ${VENV_PYTHON} -m pip install -r requirements-dev.txt
   fi
 
   ${VENV_PYTHON} -m pytest

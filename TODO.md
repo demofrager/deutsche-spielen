@@ -167,12 +167,12 @@
 
 ## 12) Non-Functional Requirements
 - [ ] Keep code modular and documented for easy maintenance.
-- [ ] Keep dependencies minimal.
-- [ ] Add clear README run instructions.
-- [ ] Ensure deterministic behavior in tests (seeded randomness where needed).
-- [ ] LanguageTool service should be optional (graceful degradation if unavailable).
-- [ ] Document local dev workflow: starting LanguageTool container + distrobox dev.
-- [ ] Document k8s deployment: LanguageTool as separate service.
+- [x] Keep dependencies minimal.
+- [x] Add clear README run instructions.
+- [x] Ensure deterministic behavior in tests (seeded randomness where needed).
+- [x] LanguageTool service should be optional (graceful degradation if unavailable).
+- [x] Document local dev workflow: single distrobox with in-toolbox LanguageTool startup.
+- [x] Document k8s deployment: LanguageTool as separate service.
 
 ## 13) Future Enhancements (Out of MVP)
 - [ ] Grammar correction with NLP/LLM assistance.
