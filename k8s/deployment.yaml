@@ -19,6 +19,9 @@ spec:
       - name: deutsche-spielen-container
         image: registry.plsdontspam.me/deutsche-spielen:latest
         imagePullPolicy: Always
+        env:
+        - name: LANGUAGETOOL_URL
+          value: http://languagetool.deutsche-spielen.svc.cluster.local:8010
         ports:
         - containerPort: 8000
         readinessProbe:

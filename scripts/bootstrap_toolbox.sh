@@ -22,7 +22,7 @@ fi
 echo "Installing system packages inside '$BOX_NAME'..."
 distrobox enter "$BOX_NAME" -- sh -lc '
   set -e
-  sudo dnf -y install python3 python3-pip python3-virtualenv
+  sudo dnf -y install python3 python3-pip python3-virtualenv java-21-openjdk-headless curl unzip
 '
 
 echo "Installing Python dependencies inside '$BOX_NAME'..."

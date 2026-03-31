@@ -1,4 +1,5 @@
 from pathlib import Path
+import logging
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -6,8 +7,10 @@ from fastapi.staticfiles import StaticFiles
 from app.api.routes_games import router as games_router
 from app.api.routes_menu import router as menu_router
 from app.api.routes_satzbauwuerfeln import router as satzbauwuerfeln_router
+from app.services.grammar_service import get_languagetool_url, is_languagetool_available
 
 BASE_DIR = Path(__file__).resolve().parent
+LOGGER = logging.getLogger(__name__)
 
 
 def create_app() -> FastAPI:
@@ -18,6 +21,20 @@ def create_app() -> FastAPI:
     app.include_router(menu_router)
     app.include_router(games_router)
     app.include_router(satzbauwuerfeln_router)
+
+    @app.on_event("startup")
+    def check_grammar_service() -> None:
+        lt_url = get_languagetool_url()
+        if not lt_url:
+            LOGGER.info("LanguageTool is disabled (LANGUAGETOOL_URL not set).")
+            return
+        if is_languagetool_available():
+            LOGGER.info("LanguageTool is available at %s", lt_url)
+            return
+        LOGGER.warning(
+            "LanguageTool configured at %s but unavailable. Continuing with Phase 1 validation only.",
+            lt_url,
+        )
 
     return app
 

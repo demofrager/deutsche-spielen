@@ -123,16 +123,14 @@
   }
 
   function renderResult(data) {
-    resultBox.className = 'result-box ' + (data.is_valid ? 'result-pass' : 'result-fail');
-    const checksList = data.checks_passed.map(c =>
-      `<li class="check-pass">&#10003; ${formatCheck(c)}</li>`
-    ).join('');
+    const hasErrors = !data.is_valid || data.grammar_errors.length > 0;
+    resultBox.className = 'result-box ' + (hasErrors ? 'result-fail' : 'result-pass');
     const failList = data.checks_failed.map(c =>
       `<li class="check-fail">&#10007; ${formatCheck(c)}</li>`
     ).join('');
     resultBox.innerHTML = `
       <p class="result-message">${data.message}</p>
-      <ul class="check-list">${checksList}${failList}</ul>
+      ${failList ? `<ul class="check-list">${failList}</ul>` : ''}
     `;
     resultBox.classList.remove('hidden');
   }
@@ -143,6 +141,8 @@
       punctuation: 'Satzzeichen am Ende',
       contains_suggestions: 'Gewürfelte Wörter verwendet',
       sentence_type_hint: 'Satztyp beachtet',
+      word_order_hint: 'Satzstellung (Verbposition)',
+      grammar_errors: 'Grammatikfehler gefunden',
     };
     return labels[key] || key;
   }

@@ -56,6 +56,7 @@ def test_validate_response_schema():
     assert "checks_passed" in data
     assert "checks_failed" in data
     assert "message" in data
+    assert "grammar_errors" in data
 
 
 def test_validate_valid_sentence():

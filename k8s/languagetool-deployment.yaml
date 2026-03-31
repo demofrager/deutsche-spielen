@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: languagetool
+  namespace: deutsche-spielen
+  labels:
+    app: languagetool
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: languagetool
+  template:
+    metadata:
+      labels:
+        app: languagetool
+    spec:
+      containers:
+      - name: languagetool
+        image: erikvl87/languagetool:latest
+        ports:
+        - containerPort: 8010
+        readinessProbe:
+          httpGet:
+            path: /v2/languages
+            port: 8010
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /v2/languages
+            port: 8010
+          initialDelaySeconds: 20
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: languagetool
+  namespace: deutsche-spielen
+  labels:
+    app: languagetool
+spec:
+  selector:
+    app: languagetool
+  ports:
+  - name: http
+    port: 8010
+    targetPort: 8010

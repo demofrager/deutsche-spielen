@@ -50,6 +50,8 @@ class ValidateOut(BaseModel):
     checks_passed: list[str]
     checks_failed: list[str]
     message: str
+    grammar_errors: list[str]
+    grammar_replacements: list[list[str]]
 
 
 # --- Routes ---
@@ -95,4 +97,6 @@ def validate(body: ValidateIn) -> ValidateOut:
         checks_passed=result.checks_passed,
         checks_failed=result.checks_failed,
         message=result.message,
+        grammar_errors=result.grammar_errors,
+        grammar_replacements=result.grammar_replacements,
     )
