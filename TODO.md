@@ -177,3 +177,65 @@
 ## 13) Future Enhancements (Out of MVP)
 - [ ] Grammar correction with NLP/LLM assistance.
 - [ ] Additional German-learning games under same menu.
+
+## 14) Future LLM Grammar Agent Integration (Post-MVP)
+- [ ] Define strict agent scope (grammar verification only):
+  - Input: one learner sentence + optional context (sentence type A-F, rolled suggestions)
+  - Output: only grammar findings (no teaching essay, no motivational text)
+  - Tone: concise and actionable
+- [ ] Add structured JSON response contract for agent output:
+  - `is_grammatically_ok: bool`
+  - `issues: [{ code, short_message, span_start, span_end, suggestion? }]`
+  - `summary: string` (max 1-2 short sentences)
+  - `provider: string` (e.g. `local-llm`, `languagetool-premium`)
+- [ ] Add backend abstraction layer for grammar providers:
+  - `GrammarProvider` interface/protocol
+  - Existing LanguageTool implementation remains one provider
+  - New LLM agent implementation as second provider
+  - Runtime selection via env var (e.g. `GRAMMAR_PROVIDER=languagetool|llm_agent`)
+- [ ] Keep agent deployment independent from Kubernetes:
+  - Local/remote agent endpoint support via env var (e.g. `GRAMMAR_AGENT_URL`)
+  - No hard dependency on in-cluster service discovery
+  - Graceful fallback to existing heuristics if agent unavailable
+- [ ] Add dedicated API endpoint for grammar-agent verification:
+  - `POST /api/games/satzbauwuerfeln/grammar-check`
+  - Request/response strictly JSON
+  - Validate payload and normalize provider-specific results into common schema
+- [ ] Add prompt/guardrail policy for grammar-only behavior:
+  - Instruct agent to avoid style rewrites unless directly tied to grammar error
+  - Limit verbosity and cap token output
+  - Reject non-German-analysis tasks in this endpoint mode
+- [ ] Add latency/cost safety controls:
+  - Request timeout budget and retries with backoff
+  - Optional result caching for identical sentence checks
+  - Feature flag to disable agent quickly without redeploy
+- [ ] Add test coverage for provider switching and fallback behavior:
+  - Unit tests for schema normalization
+  - Contract tests for expected concise issue format
+  - Failure-mode tests (timeout, malformed JSON, unavailable endpoint)
+- [ ] Add observability for grammar provider quality:
+  - Log provider used + response time + error category (without PII-heavy content)
+  - Track disagreement rates between heuristic checks and provider output
+- [ ] Define acceptance criteria before enabling by default:
+  - Better error quality than free LanguageTool on target sentence set
+  - Stable p95 latency for classroom usage
+  - Concise output quality validated by teacher review
+
+## 15) LLM Provider Discussion Log (March 31, 2026)
+- [ ] Evaluate public API contenders:
+  - Grok API
+  - DeepSeek API
+- [ ] Evaluate local contender via Ollama (final size TBD):
+  - 2B model (expected lower reliability, test only)
+  - 8-12B model (expected better grammar consistency)
+- [ ] Keep final architecture provider-agnostic:
+  - Primary path can remain LanguageTool
+  - Optional LLM fallback/provider switch via config
+- [ ] Enforce concise grammar-only output across all contenders:
+  - Strict JSON response
+  - Short issue messages only
+  - No long explanatory text
+- [ ] Capture benchmark decision before implementation:
+  - Compare JSON validity rate
+  - Compare German grammar quality on project sentence set
+  - Compare latency/cost for expected low traffic
